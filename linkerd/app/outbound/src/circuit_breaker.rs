@@ -81,6 +81,7 @@ impl<T, N> svc::NewService<T> for NewCircuitBreaker<N>
 // === impl CircuitBreaker ===
 
 impl<S> CircuitBreaker<S> {
+    #[allow(dead_code)]
     pub fn layer() -> impl svc::layer::Layer<S, Service = Self> + Clone {
         svc::layer::mk(move |inner| Self {
             inner,
@@ -90,7 +91,7 @@ impl<S> CircuitBreaker<S> {
 
 impl<Req, S> svc::Service<Req> for CircuitBreaker<S>
     where
-        S: svc::Service<Req>,
+        S: svc::Service<Req>
 {
     type Response = S::Response;
     type Error = S::Error;
