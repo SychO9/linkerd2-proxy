@@ -28,6 +28,7 @@ pub mod timeout;
 pub mod trace;
 pub mod upgrade;
 mod version;
+mod circuit_breaker;
 
 pub use self::{
     client_handle::{ClientHandle, SetClientHandle},
@@ -41,6 +42,7 @@ pub use self::{
     strip_header::StripHeader,
     timeout::{NewTimeout, ResponseTimeout, ResponseTimeoutError},
     version::Version,
+    circuit_breaker::{NewCircuitBreaker, CircuitBreaker},
 };
 pub use http::{
     header::{self, HeaderName, HeaderValue},

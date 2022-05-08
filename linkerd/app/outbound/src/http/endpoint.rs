@@ -90,6 +90,7 @@ impl<C> Outbound<C> {
                     "host",
                     CANONICAL_DST_HEADER,
                 ]))
+                .push(http::NewCircuitBreaker::layer())
                 .push_on_service(
                     svc::layers()
                         .push(http::BoxResponse::layer())

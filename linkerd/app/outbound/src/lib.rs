@@ -11,7 +11,6 @@
 #![forbid(unsafe_code)]
 
 mod discover;
-mod circuit_breaker;
 pub mod endpoint;
 pub mod http;
 mod ingress;
@@ -187,7 +186,6 @@ impl Outbound<()> {
             let server = endpoint
                 .push_switch_logical(logical.into_inner())
                 .push_discover(profiles)
-                .push_circuit_breaker()
                 .into_inner();
             let shutdown = self.runtime.drain.signaled();
             serve::serve(listen, server, shutdown).await;
