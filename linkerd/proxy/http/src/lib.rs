@@ -4,7 +4,7 @@
     clippy::disallowed_methods,
     clippy::disallowed_types
 )]
-#![forbid(unsafe_code)]
+// #![forbid(unsafe_code)]
 use http::header::AsHeaderName;
 use http::uri::Authority;
 use linkerd_error::Error;

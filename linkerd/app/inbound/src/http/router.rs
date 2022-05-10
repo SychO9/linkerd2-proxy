@@ -9,7 +9,7 @@ use linkerd_app_core::{
     Error, Infallible, NameAddr, Result,
 };
 use std::net::SocketAddr;
-use tracing::{debug, debug_span, info};
+use tracing::{debug, debug_span};
 
 /// Describes an HTTP client target.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -301,8 +301,6 @@ impl<A> svc::stack::RecognizeRoute<http::Request<A>> for LogicalPerRequest {
             })
             .or_else(|| http_request_authority_addr(req).ok()?.into_name_addr())
             .or_else(|| http_request_host_addr(req).ok()?.into_name_addr());
-
-        info!("aaaaaaaaaaaaaaaaaaaaaaa fuck");
 
         Ok(Logical {
             logical,
