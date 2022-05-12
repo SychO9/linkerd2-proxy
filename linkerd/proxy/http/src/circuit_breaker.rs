@@ -33,7 +33,7 @@ pub struct CircuitBreakerFuture<F> {
     #[pin]
     metrics: MetricsMap,
     #[pin]
-    destination: &'static String,
+    destination: String,
     #[pin]
     circuit_break: bool,
 }
@@ -135,7 +135,7 @@ impl<S, A, B> tower::Service<http::Request<A>> for CircuitBreaker<S>
                 return CircuitBreakerFuture {
                     inner: self.inner.call(req),
                     metrics,
-                    destination: &destination,
+                    destination: destination.clone(),
                     circuit_break: true,
                 }
             }
@@ -147,7 +147,7 @@ impl<S, A, B> tower::Service<http::Request<A>> for CircuitBreaker<S>
                 // We only want to track the metrics for the last N calls
                 if total_calls >= MAX_CALL_NUMBER {
                     if dest_metrics.failure_count*total_calls%100 > 30 {
-                        states.entry(destination).or_insert(true);
+                        states.entry(destination.clone()).or_insert(true);
                         info!("[MM]: Circuit breaker is open for {}", destination);
                     }
 
@@ -166,7 +166,7 @@ impl<S, A, B> tower::Service<http::Request<A>> for CircuitBreaker<S>
             info!("[MM]: {:?}", metrics.get(&first_key));
 
             metrics
-                .entry(destination.to_string())
+                .entry(destination.clone())
                 .or_insert(DestinationMetrics {
                     success_count: 0,
                     failure_count: 0,
@@ -178,7 +178,7 @@ impl<S, A, B> tower::Service<http::Request<A>> for CircuitBreaker<S>
         CircuitBreakerFuture {
             inner: future,
             metrics: unsafe { METRICS.as_mut().unwrap() },
-            destination: &destination,
+            destination: destination.clone(),
             circuit_break: false,
         }
     }
@@ -196,7 +196,7 @@ impl<F, Response, Error> Future for CircuitBreakerFuture<F>
         let this = self.project();
 
         let pinned_inner: Pin<&mut F> = this.inner;
-        let pinned_destination: Pin<&mut &'static String> = this.destination;
+        let pinned_destination: Pin<&mut String> = this.destination;
         let pinned_metrics: Pin<&mut MetricsMap> = this.metrics;
         let pinned_circuit_break: Pin<&mut bool> = this.circuit_break;
 
