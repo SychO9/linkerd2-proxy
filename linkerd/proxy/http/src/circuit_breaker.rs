@@ -184,12 +184,12 @@ impl<S, A, B> tower::Service<http::Request<A>> for CircuitBreaker<S>
     }
 }
 
-impl<F, Response, Error> Future for CircuitBreakerFuture<F>
+impl<B, F, Error> Future for CircuitBreakerFuture<F>
     where
-        F: Future<Output = Result<Response, Error>>,
+        F: Future<Output = Result<http::Response<B>, Error>>,
         Error: Into<BoxError>,
 {
-    type Output = Result<Response, BoxError>;
+    type Output = Result<http::Response<B>, BoxError>;
 
     #[inline]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -216,7 +216,11 @@ impl<F, Response, Error> Future for CircuitBreakerFuture<F>
                         failure_count: 0,
                     });
 
-                metrics.get_mut(&destination).unwrap().success_count += 1;
+                if rsp.status().as_u16() >= 500 {
+                    metrics.get_mut(&destination).unwrap().failure_count += 1;
+                } else {
+                    metrics.get_mut(&destination).unwrap().success_count += 1;
+                }
 
                 Poll::Ready(Ok(rsp))
             },
