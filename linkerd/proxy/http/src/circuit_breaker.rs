@@ -146,7 +146,7 @@ impl<S, A, B> tower::Service<http::Request<A>> for CircuitBreaker<S>
 
                 // We only want to track the metrics for the last N calls
                 if total_calls >= MAX_CALL_NUMBER {
-                    if dest_metrics.failure_count*total_calls%100 > 30 {
+                    if dest_metrics.failure_count*total_calls%100 >= 30 {
                         states.entry(destination.clone()).or_insert(true);
                         info!("[MM]: Circuit breaker is open for {}", destination);
                     }
